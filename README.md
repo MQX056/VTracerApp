@@ -1,5 +1,8 @@
 # VTracer Local Web App
 
+<img width="1314" height="1123" alt="image" src="https://github.com/user-attachments/assets/2df93435-5ff4-45bf-8874-f5773e4f07f5" />
+
+
 一个基于 VTracer 的本地离线图片转矢量 SVG 工具，采用现代暗色主题 UI 设计。
 
 ## 功能特性
