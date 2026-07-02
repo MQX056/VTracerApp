@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>VTracer - 本地图片转矢量工具</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=2">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                    <path d="M2 17l10 5 10-5"></path>
+                    <path d="M2 12l10 5 10-5"></path>
+                </svg>
+                <span class="logo-text">VTracer</span>
+            </div>
+            <div class="header-right">
+                <span class="svg-size-display" id="svgSizeDisplay"></span>
+                <div class="status-indicator" id="statusIndicator">
+                    <span class="status-dot"></span>
+                    <span class="status-text" data-i18n="status_ready">就绪</span>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn header-action-btn" id="copySvgBtn" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        <span data-i18n="copy_svg">SVG</span>
+                    </button>
+                    <button class="action-btn header-action-btn" id="downloadSvgBtn" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        <span data-i18n="download_svg">SVG</span>
+                    </button>
+                </div>
+                <button class="theme-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle theme">
+                    <svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    <svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                </button>
+                <div class="lang-dropdown" id="langDropdown">
+                    <button class="lang-dropdown-toggle" onclick="toggleLangDropdown()">
+                        <span class="lang-current" id="langCurrent">中文</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    <div class="lang-dropdown-menu">
+                        <div class="lang-dropdown-item" data-lang="zh" onclick="setLanguage('zh')">中文</div>
+                        <div class="lang-dropdown-item" data-lang="en" onclick="setLanguage('en')">English</div>
+                        <div class="lang-dropdown-item" data-lang="fr" onclick="setLanguage('fr')">Français</div>
+                        <div class="lang-dropdown-item" data-lang="ru" onclick="setLanguage('ru')">Русский</div>
+                        <div class="lang-dropdown-item" data-lang="ar" onclick="setLanguage('ar')">العربية</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Left Panel: Upload & Settings -->
+            <aside class="left-panel">
+                <!-- Upload Zone -->
+                <div class="upload-section">
+                    <div class="section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        <span data-i18n="upload_title">上传图片</span>
+                    </div>
+                    <div class="upload-zone" id="uploadZone">
+                        <input type="file" id="fileInput" accept="image/*" hidden>
+                        <div class="upload-content">
+                            <div class="upload-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 5v14M5 12h14" stroke="url(#uploadGrad)"/>
+                                    <defs>
+                                        <linearGradient id="uploadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" style="stop-color:#60a5fa"/>
+                                            <stop offset="100%" style="stop-color:#a78bfa"/>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                            </div>
+                            <p class="upload-text"><span data-i18n="upload_drag_hint">拖拽图片到此处，或</span> <span class="upload-link" data-i18n="upload_click">点击选择</span></p>
+                            <p class="upload-hint" data-i18n="upload_formats">支持 PNG、JPG、GIF、BMP、WebP · Ctrl+V 粘贴</p>
+                        </div>
+                        <div class="upload-preview hidden" id="uploadPreview">
+                            <img id="previewImg" src="" alt="预览">
+                            <button class="remove-btn" id="removeBtn" data-i18n-title="remove_tooltip">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings -->
+                <div class="settings-section collapsed" id="settingsSection">
+                    <div class="section-title collapsible-toggle" data-target="settingsContent">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.68 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                        <span data-i18n="settings_title">参数设置</span>
+                        <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+
+                    <div class="collapsible-content" id="settingsContent">
+                        <div class="setting-group">
+                            <label class="setting-label" data-i18n-tooltip="tooltip_colormode" data-i18n="colormode_label">色彩模式</label>
+                            <div class="segment-control" data-param="colormode">
+                                <button class="segment-btn active" data-value="bw" data-i18n="colormode_bw">黑白线稿</button>
+                                <button class="segment-btn" data-value="color" data-i18n="colormode_color">彩色矢量</button>
+                            </div>
+                        </div>
+
+                        <div class="setting-group">
+                            <label class="setting-label" data-i18n-tooltip="tooltip_mode" data-i18n="mode_label">曲线模式</label>
+                            <div class="segment-control" data-param="mode">
+                                <button class="segment-btn active" data-value="spline" data-i18n="mode_spline">平滑</button>
+                                <button class="segment-btn" data-value="polygon" data-i18n="mode_polygon">多边形</button>
+                                <button class="segment-btn" data-value="pixel" data-i18n="mode_pixel">像素</button>
+                            </div>
+                        </div>
+
+                        <div class="setting-group" id="hierarchicalGroup">
+                            <label class="setting-label" data-i18n-tooltip="tooltip_hierarchical" data-i18n="hierarchical_label">堆叠模式</label>
+                            <div class="segment-control" data-param="hierarchical">
+                                <button class="segment-btn active" data-value="stacked" data-i18n="hierarchical_stacked">堆叠</button>
+                                <button class="segment-btn" data-value="cutout" data-i18n="hierarchical_cutout">镂空</button>
+                            </div>
+                        </div>
+
+                        <div class="setting-group" id="colorPrecisionGroup">
+                            <label class="setting-label" data-i18n-tooltip="tooltip_color_precision" data-i18n="color_precision_label">色彩精度</label>
+                            <input type="range" class="range-slider" data-param="color_precision" min="1" max="8" value="6">
+                        </div>
+
+                        <div class="setting-group">
+                            <label class="setting-label" data-i18n-tooltip="tooltip_corner_threshold" data-i18n="corner_threshold_label">角点阈值</label>
+                            <input type="range" class="range-slider" data-param="corner_threshold" min="0" max="180" value="60">
+                        </div>
+
+                        <div class="setting-group">
+                            <label class="setting-label" data-i18n-tooltip="tooltip_filter_speckle" data-i18n="filter_speckle_label">噪点过滤</label>
+                            <input type="range" class="range-slider" data-param="filter_speckle" min="0" max="16" value="4">
+                        </div>
+
+                        <div class="setting-group">
+                            <label class="setting-label" data-i18n-tooltip="tooltip_gradient_step" data-i18n="gradient_step_label">梯度步长</label>
+                            <input type="range" class="range-slider" data-param="gradient_step" min="0" max="50" value="0">
+                        </div>
+
+                        <div class="setting-group">
+                            <label class="setting-label" data-i18n-tooltip="tooltip_segment_length" data-i18n="segment_length_label">分段长度</label>
+                            <input type="range" class="range-slider" data-param="segment_length" min="3.5" max="10" step="0.5" value="4">
+                        </div>
+
+                        <div class="setting-group">
+                            <label class="setting-label" data-i18n-tooltip="tooltip_splice_threshold" data-i18n="splice_threshold_label">拼接阈值</label>
+                            <input type="range" class="range-slider" data-param="splice_threshold" min="0" max="180" value="45">
+                        </div>
+
+                        <div class="setting-group">
+                            <label class="setting-label" data-i18n-tooltip="tooltip_path_precision" data-i18n="path_precision_label">路径精度</label>
+                            <input type="range" class="range-slider" data-param="path_precision" min="0" max="20" value="8">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Settings -->
+                <div class="preview-settings-section collapsed" id="previewSettingsSection">
+                    <div class="section-title collapsible-toggle" data-target="previewSettingsContent">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        <span data-i18n="preview_settings_title">预览设置</span>
+                        <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+
+                    <div class="collapsible-content" id="previewSettingsContent">
+                        <div class="setting-row">
+                            <div class="color-setting">
+                                <label class="color-label" data-i18n="bg_color_label">背景色</label>
+                                <div class="color-input-group">
+                                    <input type="color" class="color-picker" id="bgColor" value="#0a0a0f">
+                                    <span class="color-hex" id="bgColorHex">#0a0a0f</span>
+                                </div>
+                            </div>
+                            <div class="color-setting">
+                                <label class="color-label" data-i18n="stroke_color_label">线条色</label>
+                                <div class="color-input-group">
+                                    <input type="color" class="color-picker" id="strokeColor" value="#ffffff">
+                                    <span class="color-hex" id="strokeColorHex">#ffffff</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="color-presets">
+                            <button class="color-preset-btn" data-bg="#ffffff" data-stroke="#000000" data-i18n-title="preset_white_black">
+                                <span class="preset-swatch" style="background:#fff;border:1px solid rgba(255,255,255,0.2)"></span>
+                                <span data-i18n="preset_white_black">白底黑线</span>
+                            </button>
+                            <button class="color-preset-btn" data-bg="#000000" data-stroke="#ffffff" data-i18n-title="preset_black_white">
+                                <span class="preset-swatch" style="background:#000"></span>
+                                <span data-i18n="preset_black_white">黑底白线</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Right Panel: Preview -->
+            <section class="right-panel">
+                <div class="preview-container" id="previewContainer">
+                    <!-- Empty State -->
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                        </div>
+                        <p class="empty-title" data-i18n="empty_title">等待上传</p>
+                        <p class="empty-desc" data-i18n="empty_desc">上传图片后自动开始转换，调整参数实时生效</p>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div class="loading-state hidden" id="loadingState">
+                        <div class="loading-spinner"></div>
+                        <p class="loading-text" data-i18n="loading_text">正在转换中...</p>
+                    </div>
+
+                    <!-- Result -->
+                    <div class="result-view hidden" id="resultView">
+                        <div class="result-content" id="resultContent">
+                            <div class="floating-tooltip" id="floatingTooltip" data-i18n="floating_original">查看原图</div>
+                            <div class="svg-wrapper" id="svgWrapper"></div>
+                        </div>
+                        <div class="result-toolbar">
+                            <div class="long-hint" data-i18n="long_hint">长按鼠标查看原图</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Toast -->
+        <div class="toast" id="toast"></div>
+    </div>
+
+    <script src="/static/js/app.js?v=2"></script>
+</body>
+</html>
